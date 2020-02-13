@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using jwt.Data;
 using jwt.Models;
+using jwt.reposirory;
 using Microsoft.Data.SqlClient;
 
 namespace jwt.reposirory
@@ -134,7 +135,7 @@ namespace jwt.reposirory
 
         public Portifolio Insert(Portifolio model)
         {
-            string query = "Insert into Portifolio values(@Categoria,@Titulo,@Imagem,@link)";
+            string query = "Insert into Portifolio(Categoria,Titulo,Imagem,Link) values(@Categoria,@Titulo,@Imagem,@Link)";
             try
             {
                 if (ValidatePortifolio(model.Titulo) == false)
@@ -142,15 +143,17 @@ namespace jwt.reposirory
                     {
                         using (SqlCommand cmd = new SqlCommand(query, cn))
                         {
-                            cmd.Parameters.AddWithValue("@Catetgoria", model.categoria);
+                            cmd.Parameters.AddWithValue("@Categoria", model.categoria.IdCategoria);
                             cmd.Parameters.AddWithValue("@Titulo", model.Titulo);
                             cmd.Parameters.AddWithValue("@Imagem", model.Imagem);
                             cmd.Parameters.AddWithValue("@Link", model.Link);
                             cmd.ExecuteNonQuery();
+                            long Id = RetIdPortifolio();
+                            if (Id != 0)
+                                model.Id_Portifolio = (int)Id;
                         }
+
                     }
-                else
-                    model = null;
             }
             catch (Exception ex)
             {
@@ -190,10 +193,11 @@ namespace jwt.reposirory
             }
             return model;
         }
+
         public bool ValidatePortifolio(string name)
         {
             bool state = false;
-            string query = "Select * from Portifolio where Id_Portifolio = @Id_Portifolio";
+            string query = "Select * from Portifolio where Titulo = @Titulo";
 
             SqlDataReader dr;
             Portifolio p = new Portifolio();
@@ -203,6 +207,7 @@ namespace jwt.reposirory
                 {
                     using (SqlCommand cmd = new SqlCommand(query, cn))
                     {
+                        cmd.Parameters.AddWithValue("@Titulo", name.Trim());
                         dr = cmd.ExecuteReader();
                         if (dr.HasRows == false)
                         {
@@ -224,5 +229,44 @@ namespace jwt.reposirory
             return state;
 
         }
+        public long RetIdPortifolio()
+        {
+            bool state = false;
+            string query = "Select Max(Id_Portifolio)as 'Id_Portifolio' from Portifolio p inner join  Categoria c on p.Categoria = c.IdCategoria";
+
+            SqlDataReader dr;
+            Portifolio p = new Portifolio();
+            int Id_Portifolio = 0;
+            try
+            {
+                using (SqlConnection cn = Conexao.conectar())
+                {
+                    using (SqlCommand cmd = new SqlCommand(query, cn))
+                    {
+                        
+                        dr = cmd.ExecuteReader();
+                        dr.Read();
+                        if (dr.HasRows == false)
+                        {
+                             Id_Portifolio = 0;
+                        }
+                        else
+                        {
+                           Id_Portifolio = Convert.ToInt32(dr["Id_Portifolio"]);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogRepository log = new LogRepository();
+                log.InsertLog(ex.Message);
+            }
+            return Id_Portifolio ;
+
+        }
     }
 }
+
+
+

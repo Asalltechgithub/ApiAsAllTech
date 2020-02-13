@@ -37,7 +37,7 @@ namespace jwt.Controllers
         public async Task<ActionResult<Portifolio>> Post([FromBody] Portifolio model)
         {
 
-            throw new NotImplementedException();
+           return db.Insert(model);
         }
 
         // PUT: api/Portifolio/5
