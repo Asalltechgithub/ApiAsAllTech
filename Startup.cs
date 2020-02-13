@@ -22,6 +22,7 @@ namespace jwt
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IPortifolio, PortifolioRepository>();
             services.AddTransient<IGrupoUsuario, GrupoUsuarioRepository>();
             services.AddTransient<IServico, ServicoRepository>();
             services.AddTransient<IUsuario, UsuarioRepository>();

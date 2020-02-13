@@ -13,9 +13,32 @@ namespace jwt.reposirory
             throw new NotImplementedException();
         }
 
-        public Portifolio GetAllPortifolio()
+        public IEnumerable<Portifolio> GetAllPortifolio()
         {
-            throw new NotImplementedException();
+            var list = new List<Portifolio>();
+            list.Add(
+             new Portifolio()
+             {
+                 Titulo = "App Contador de Pessoas",
+                 Id_Portifolio = 1,
+                 Imagem = "#",
+                 categoria = new Categoria { IdCategoria = 1, Nome_Categoria = "Desiner" },
+                 Link = "#"
+
+
+             }
+
+            );
+            list.Add(new Portifolio()
+            {
+                Titulo = "Instalação de Cameras no Condominio em Iraja",
+                Id_Portifolio = 1,
+                Imagem = "#",
+                categoria = new Categoria { IdCategoria = 2, Nome_Categoria = "Istalação de CFTV" },
+                Link = "#"
+            });
+
+            return list;
         }
 
         public Portifolio GetPortifolioById(int Id)

@@ -12,6 +12,6 @@ namespace jwt.reposirory
         Portifolio Edit(Portifolio model);
         Portifolio remove(int Id);
         Portifolio GetPortifolioById(int Id);
-        Portifolio GetAllPortifolio();
+       IEnumerable<Portifolio> GetAllPortifolio();
     }
 }
