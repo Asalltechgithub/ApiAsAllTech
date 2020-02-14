@@ -62,6 +62,7 @@ namespace jwt.Controllers
           var Model =  db.GetPortifolioById(id);
             if (Model != null)
             {
+                model.Id_Portifolio = id;
 
             return   db.Edit(model);
             }

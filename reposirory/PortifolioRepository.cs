@@ -22,7 +22,7 @@ namespace jwt.reposirory
                     using (SqlCommand cmd = new SqlCommand(query, cn))
                     {
                         cmd.Parameters.AddWithValue("@Id_Portifolio", model.Id_Portifolio);
-                        cmd.Parameters.AddWithValue("@Catetgoria", model.categoria);
+                        cmd.Parameters.AddWithValue("@Categoria", model.categoria.IdCategoria);
                         cmd.Parameters.AddWithValue("@Titulo", model.Titulo);
                         cmd.Parameters.AddWithValue("@Imagem", model.Imagem);
                         cmd.Parameters.AddWithValue("@Link", model.Link);
@@ -91,7 +91,7 @@ namespace jwt.reposirory
 
         public Portifolio GetPortifolioById(int Id)
         {
-            string query = "Select * from Portifolio where Id_Portifolio = @Id_Portifolio";
+            string query = " Select * from Portifolio p  inner join Categoria c on p.Categoria = c.IdCategoria where Id_Portifolio =@Id_Portifolio ";
 
             SqlDataReader dr;
             Portifolio p = new Portifolio();
@@ -101,7 +101,9 @@ namespace jwt.reposirory
                 {
                     using (SqlCommand cmd = new SqlCommand(query, cn))
                     {
+                        cmd.Parameters.AddWithValue("@Id_Portifolio", Id);
                         dr = cmd.ExecuteReader();
+                        dr.Read();
                         if (dr.HasRows == false)
                         {
                             return null;
@@ -139,6 +141,7 @@ namespace jwt.reposirory
             try
             {
                 if (ValidatePortifolio(model.Titulo) == false)
+                {
                     using (SqlConnection cn = Conexao.conectar())
                     {
                         using (SqlCommand cmd = new SqlCommand(query, cn))
@@ -154,6 +157,11 @@ namespace jwt.reposirory
                         }
 
                     }
+                }
+                else
+                {
+                    return model = null;
+                }
             }
             catch (Exception ex)
             {

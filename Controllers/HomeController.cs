@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace jwt.Controllers
 {
-    [Route("vi/account/")]
+    [Route("api/account/")]
     public class HomeController : ControllerBase
     {
         private readonly IUsuario db;
@@ -79,20 +79,7 @@ namespace jwt.Controllers
             return "Essa é a Api  Faca o login em https://localhost:44381/vi/account/login ";
         }
 
-        //[HttpGet]
-        //[Route("authenticated")]
-        //[Authorize]
-        //public string Authenticated() => String.Format("Autenticado - {0}", User.Identity.Name);
-
-        //[HttpGet]
-        //[Route("employee")]
-        //[Authorize(Roles = "employee,manager")]
-        //public string Employee() => "Funcionário";
-
-        //[HttpGet]
-        //[Route("manager")]
-        //[Authorize(Roles = "manager")]
-        //public string Manager() => "Gerente";
+        
 
 
     }
