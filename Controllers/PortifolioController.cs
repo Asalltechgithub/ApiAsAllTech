@@ -27,29 +27,67 @@ namespace jwt.Controllers
 
         // GET: api/Portifolio/5
         [HttpGet("{id}", Name = "GetPortifolioByID")]
-        public string Get(int id)
+        public async Task<ActionResult<Portifolio>> Get(int id)
         {
-            return "value";
+            var model = db.GetPortifolioById(id);
+          if ( model != null)
+            {
+
+                return model;
+            }
+            else
+            {
+                return NotFound(new {message = "Dados não encontrados" });
+            }
+            
         }
 
         // POST: api/Portifolio
         [HttpPost]
         public async Task<ActionResult<Portifolio>> Post([FromBody] Portifolio model)
         {
+          var Model =  db.Insert(model);
+            if(Model == null)
+            {
+                return BadRequest(new { Message = "Dados Invalidos Revise os dados e tente denovo" });
+            }
 
-           return db.Insert(model);
+            return Model;
         }
 
         // PUT: api/Portifolio/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<ActionResult<Portifolio>> Put(int id, [FromBody] Portifolio model)
         {
+          var Model =  db.GetPortifolioById(id);
+            if (Model != null)
+            {
+
+            return   db.Edit(model);
+            }
+            else
+            {
+                return NotFound(new { Message = "Dados Invalidos ou inexistentes Revise os dados e tente denovo" });
+            }
+           
+
         }
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult<Portifolio>>  Delete(int id)
         {
+            var Model = db.GetPortifolioById(id);
+            if (Model != null)
+            {
+
+                return  db.remove(id);
+            }
+            else
+            {
+                return NotFound(new { Message = "Dados Invalidos ou inexistentes Revise os dados e tente denovo" });
+            }
+
         }
     }
 }

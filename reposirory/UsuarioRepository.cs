@@ -50,11 +50,11 @@ namespace jwt.reposirory
             {
                 using (SqlConnection cn = Conexao.conectar())
                 {
-                    using (SqlCommand cmd = new SqlCommand("Select * from Usuario u inner join GrupoUsuario gu on u.Role = gu.IdGrupoUsuario where Username = "+ Username +" ", cn))
+                    using (SqlCommand cmd = new SqlCommand("Select * from Usuario u inner join GrupoUsuario gu on u.Role = gu.IdGrupoUsuario where Username = @Username", cn))
                     {
 
-                        //cmd.Parameters.AddWithValue("@Username", Username);
-                        //cmd.Parameters.AddWithValue("@Password", password);
+                        cmd.Parameters.AddWithValue("@Username", Username);
+                        cmd.Parameters.AddWithValue("@Password", password);
 
                         dr = cmd.ExecuteReader();
 
