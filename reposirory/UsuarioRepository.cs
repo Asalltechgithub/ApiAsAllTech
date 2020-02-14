@@ -4,6 +4,7 @@ using jwt.services;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,11 +22,11 @@ namespace jwt.reposirory
             {
                 using (SqlConnection cn = Conexao.conectar())
                 {
-                    using (SqlCommand cmd = new SqlCommand("Update Usuario set Username=@Username,Role=@Role where Id = @Id", cn))
+                    using (SqlCommand cmd = new SqlCommand("Update Usuario set Username=@Username,Grupo=@Grupo where Id = @Id", cn))
                     {
                         cmd.Parameters.AddWithValue("@Id", model.Id);
                         cmd.Parameters.AddWithValue("@Username", model.Username);
-                        cmd.Parameters.AddWithValue("@Role", model.Role);
+                        cmd.Parameters.AddWithValue("@Grupo", model.Grupo.IdGrupoUsuario);
                         cmd.ExecuteNonQuery();
                         cn.Close();
 
@@ -50,7 +51,7 @@ namespace jwt.reposirory
             {
                 using (SqlConnection cn = Conexao.conectar())
                 {
-                    using (SqlCommand cmd = new SqlCommand("Select * from Usuario u inner join GrupoUsuario gu on u.Role = gu.IdGrupoUsuario where Username = @Username", cn))
+                    using (SqlCommand cmd = new SqlCommand("Select * from Usuario u inner join GrupoUsuario gu on u.Grupo = gu.IdGrupoUsuario where Username = @Username", cn))
                     {
 
                         cmd.Parameters.AddWithValue("@Username", Username);
@@ -64,18 +65,20 @@ namespace jwt.reposirory
 
                             usuario.Id = (int)(dr["Id"]);
                             usuario.Username = dr["Username"].ToString();
-                            usuario.Role = dr["Role"].ToString();
                             usuario.Password = dr["Password"].ToString();
-                            usuario.grupo = new GrupoUsuario()
+                            usuario.Grupo = new GrupoUsuario()
                             {
+                                IdGrupoUsuario = (int)dr["IdGrupoUsuario"],
                                 NomeGrupoUsuario = dr["NomegrupoUsuario"].ToString()
                             };
 
-                        } else if (dr.HasRows ==false){
-                           return usuario = null;
+                        }
+                        else if (dr.HasRows == false)
+                        {
+                            return usuario = null;
 
                         }
-                       
+
 
                         // metodo  que compara senha ecriptada 
                         ckSenha = encryption.checkEncryptPassword(usuario.Password, password);
@@ -109,9 +112,9 @@ namespace jwt.reposirory
             {
                 using (SqlConnection cn = Conexao.conectar())
                 {
-                    using (SqlCommand cmd = new SqlCommand("Select * from Usuario u inner join GrupoUsuario gu on u.Role = gu.IdGrupoUsuario  where u.Role=@Role", cn))
+                    using (SqlCommand cmd = new SqlCommand("Select * from Usuario u inner join GrupoUsuario gu on u.Grupo = gu.IdGrupoUsuario  where u.Grupo=@Grupo", cn))
                     {
-                        cmd.Parameters.AddWithValue("@Role", Role);
+                        cmd.Parameters.AddWithValue("@Grupo", Role);
                         dr = cmd.ExecuteReader();
 
                         while (dr.Read())
@@ -124,17 +127,16 @@ namespace jwt.reposirory
                                     {
                                         Id = (int)dr["Id"],
                                         Username = dr["Username"].ToString(),
-                                        Role = dr["Role"].ToString(),
-                                        grupo = new GrupoUsuario()
+                                        Grupo = new GrupoUsuario()
                                         {
-                                            IdGrupoUsuario =(int) dr["IdGrupoUsuario"],
-                                           NomeGrupoUsuario =  dr["NomeGrupoUsuario"].ToString()
+                                            IdGrupoUsuario = (int)dr["IdGrupoUsuario"],
+                                            NomeGrupoUsuario = dr["NomeGrupoUsuario"].ToString()
                                         }
 
 
                                     }
 
-                                    ) ;
+                                    );
                             }
 
                         }
@@ -159,9 +161,9 @@ namespace jwt.reposirory
             {
                 using (SqlConnection cn = Conexao.conectar())
                 {
-                    using (SqlCommand cmd = new SqlCommand("Select u.Id, u.Role, u.Username ,gu.NomeGrupoUsuario from Usuario u inner join GrupoUsuario gu on u.Role = gu.IdGrupoUsuario ", cn))
+                    using (SqlCommand cmd = new SqlCommand("Select u.Id,  u.Username ,gu.NomeGrupoUsuario , gu.IdGrupoUsuario from Usuario u inner join GrupoUsuario gu on u.Grupo = gu.IdGrupoUsuario ", cn))
                     {
-                        
+
                         dr = cmd.ExecuteReader();
 
                         while (dr.Read())
@@ -174,15 +176,15 @@ namespace jwt.reposirory
                                     {
                                         Id = (int)dr["Id"],
                                         Username = dr["Username"].ToString(),
-                                        Role = dr["Role"].ToString(),
-                                        grupo = new GrupoUsuario()
+                                        Grupo = new GrupoUsuario()
                                         {
+                                            IdGrupoUsuario = (int)dr["IdGrupoUsuario"],
                                             NomeGrupoUsuario = dr["NomeGrupoUsuario"].ToString()
                                         }
                                     }
 
 
-                                ) ;
+                                );
                             }
 
                         }
@@ -209,11 +211,11 @@ namespace jwt.reposirory
             {
                 using (SqlConnection cn = Conexao.conectar())
                 {
-                    using (SqlCommand cmd = new SqlCommand("insert into Usuario(Username,Password,Role)values(@Username,@Password,@Role)", cn))
+                    using (SqlCommand cmd = new SqlCommand("insert into Usuario(Username,Password,Grupo)values(@Username,@Password,@Grupo)", cn))
                     {
                         cmd.Parameters.AddWithValue("@Username", model.Username);
                         cmd.Parameters.AddWithValue("@Password", model.Password);
-                        cmd.Parameters.AddWithValue("@Role", model.Role);
+                        cmd.Parameters.AddWithValue("@Grupo", model.Grupo.IdGrupoUsuario);
                         cmd.ExecuteNonQuery();
                         cn.Close();
                         model = ValidUserName(model.Username);
@@ -260,7 +262,7 @@ namespace jwt.reposirory
             {
                 using (SqlConnection cn = Conexao.conectar())
                 {
-                    using (SqlCommand cmd = new SqlCommand("Select u.Id, u.Role, u.Username ,gu.NomeGrupoUsuario from Usuario u inner join GrupoUsuario gu on u.Role = gu.IdGrupoUsuario where u.Id = @Id", cn))
+                    using (SqlCommand cmd = new SqlCommand("Select u.Id, u.Username ,gu.NomeGrupoUsuario,gu.IdGrupoUsuario from Usuario u inner join GrupoUsuario gu on u.Grupo = gu.IdGrupoUsuario where u.Id = @Id", cn))
                     {
                         cmd.Parameters.AddWithValue("@Id", Id);
                         dr = cmd.ExecuteReader();
@@ -273,8 +275,8 @@ namespace jwt.reposirory
 
                             usuario.Id = (int)dr["Id"];
                             usuario.Username = dr["Username"].ToString();
-                            usuario.Role = dr["Role"].ToString();
-                            usuario.grupo.NomeGrupoUsuario = dr["NomeGrupoUsuario"].ToString();
+
+                            usuario.Grupo = new GrupoUsuario { IdGrupoUsuario = (int)dr["IdGrupoUsuario"], NomeGrupoUsuario = dr["NomeGrupoUsuario"].ToString() };
                         }
 
                     }
@@ -305,7 +307,7 @@ namespace jwt.reposirory
             {
                 using (SqlConnection cn = Conexao.conectar())
                 {
-                    using (SqlCommand cmd = new SqlCommand("Select * from Usuario u inner join GrupoUsuario gu on u.Role = gu.IdGrupoUsuario where u.Username= @Username", cn))
+                    using (SqlCommand cmd = new SqlCommand("Select * from Usuario u inner join GrupoUsuario gu on u.Grupo = gu.IdGrupoUsuario where u.Username= @Username", cn))
                     {
 
                         cmd.Parameters.AddWithValue("@Username", UserName);
@@ -318,8 +320,13 @@ namespace jwt.reposirory
                         {
                             usuario.Username = dr["Username"].ToString();
                             usuario.Id = (int)dr["Id"];
-                            usuario.Role = dr["Role"].ToString();
-                            usuario.grupo.NomeGrupoUsuario = dr["NomeGrupoUsuario"].ToString();
+                            usuario.Grupo = new GrupoUsuario
+                            {
+                                IdGrupoUsuario =(int) dr["IdGrupoUsuario"],
+                            
+                                NomeGrupoUsuario = dr["NomeGrupoUsuario"].ToString()
+                            };
+
                             return usuario;
                         }
 
@@ -340,6 +347,54 @@ namespace jwt.reposirory
 
             return usuario;
 
+        }
+
+        public User FirstAcces()
+        {
+            var ADM = new User();
+           
+            try
+            {
+                using(SqlConnection cn = Conexao.conectar())
+                {
+                    using(SqlCommand cmd = new SqlCommand("Select Count('NumUsuario') as 'NumUsuario' from Usuario",cn))
+                    {
+                        SqlDataReader dr = cmd.ExecuteReader();
+                        dr.Read();
+                        int CountUser = (int)dr["NumUsuario"];
+                        dr.Close();
+                        if(CountUser == 0)
+                        {
+                            var cmd2 = new SqlCommand {
+                                CommandText = "Insert into Usuario  (Username, Password, Grupo)values('ADM','Admin',1)",
+                                 Connection =cn,
+                                 
+                        };
+                            if(cmd2.ExecuteNonQuery() == 1)
+                            {
+
+                                ADM = new User
+                                {
+                                    Grupo = new GrupoUsuario { IdGrupoUsuario = 1, },
+                                    Username = "ADM",
+                                    Password = "Admin"
+
+                                };
+
+                            }
+
+                           
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                LogRepository log = new LogRepository();
+                log.InsertLog(ex.Message);
+            }
+            return ADM;
         }
     }
 }

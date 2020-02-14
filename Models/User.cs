@@ -10,14 +10,17 @@ namespace jwt.Models
     {   
         [Key]
         public int Id { get; set; }
-        public GrupoUsuario grupo { get; set; }
+        
+        [Required]
+        public GrupoUsuario Grupo { get; set; }
+        
         [Required]
         [StringLength(50, ErrorMessage = "Numeros de Caracteres Exedido", ErrorMessageResourceName = "Error", MinimumLength = 5)]
         public string Username { get; set; }
         [Required]
         public string Password { get; set; }
-        [Required]
-        public string Role { get; set; }
+       
+        
 
     }
 }

@@ -16,6 +16,7 @@ namespace jwt.reposirory
         IEnumerable<User> GetUsersByRole(int Role);
         IEnumerable<User> GetAllUsers();
 
+        User FirstAcces();
        User ValidUserName(string UserName);
     }
 }

@@ -22,9 +22,9 @@ namespace jwt.Controllers
         // GET: api/Usuario
         [HttpGet]
         [Authorize(Roles = "1,2")]
-        public async Task<ActionResult< IEnumerable<User>>> GetAllUsuarios()
+        public async Task<ActionResult<IEnumerable<User>>> GetAllUsuarios()
         {
-            if (db.GetAllUsers()==null)
+            if (db.GetAllUsers() == null)
             {
 
                 return NotFound(new { message = "Dados não Encontrados na base de dados tente mais tarde !!!" });
@@ -34,10 +34,10 @@ namespace jwt.Controllers
                 return db.GetAllUsers().ToList();
             }
 
-           
+
         }
 
-        // GET: api/Usuario/5
+        // GET: api/Usuario/Perfil/5
         [HttpGet]
         [Route("Perfil/{id}")]
         [Authorize(Roles = "1,2")]
@@ -48,11 +48,11 @@ namespace jwt.Controllers
 
         // POST: api/Usuario
         [HttpPost]
-        //[Authorize(Roles = "1")]
+        [Authorize(Roles = "1")]
         public async Task<ActionResult<User>> Post([FromBody] User model)
         {
             var usuario = db.ValidUserName(model.Username);
-            if (usuario==null)
+            if (usuario == null)
             {
                 return db.Insert(model);
             }
@@ -65,21 +65,37 @@ namespace jwt.Controllers
                 });
             }
         }
+        // GET: api/Usuario/5
+        [HttpGet("{id}")]
+        [Authorize(Roles = "1")]
+        public async Task<ActionResult<User>> GetUserById(int Id)
+        {
+            var model = db.GetUserById(Id);
+
+            if (model == null)
+            {
+                return NotFound(new { message = "Dados não Encontrados na base de dados tente mais tarde !!!" });
+            }
+            else
+            {
+                return model;
+            }
+
+        }
 
         // PUT: api/Usuario/5
-        [HttpPost]
-        [Route("Edit")]
+        [HttpPut]
         [Authorize(Roles = "1")]
         public async Task<ActionResult<User>> Put([FromBody] User model)
         {
-             
+
             if (db.GetUserById(model.Id) == null)
             {
                 return NotFound();
             }
             else
             {
-                
+
                 model = db.Edit(model);
             }
 
@@ -93,7 +109,7 @@ namespace jwt.Controllers
         public async Task<ActionResult<User>> Delete(int id)
         {
             User model = new User();
-            
+
             model = db.GetUserById(id);
             if (model == null)
             {
@@ -101,9 +117,9 @@ namespace jwt.Controllers
             }
             else
             {
-                
+
                 db.Remove(model);
-                
+
             }
 
             return model;
