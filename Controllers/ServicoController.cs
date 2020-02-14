@@ -45,12 +45,12 @@ namespace jwt.Controllers
             if (db.GetServicoById(id) == null)
             {
 
-                return NotFound(new { message = "Dado não encontrad0 !!! entre em contato com administrador  ou tente mais tarde " });
+                return NotFound(new { message = "Dado não encontrado ou inexistente !!! entre em contato com administrador  ou tente mais tarde " });
 
             }
             else
             {
-               model = db.remove(id);
+               model = db.GetServicoById(id);
             }
 
             return model ;
@@ -61,15 +61,15 @@ namespace jwt.Controllers
         [Authorize(Roles = "1")]
         public async Task<ActionResult<Servico>>Post([FromBody] Servico model)
         {
-            var servico = db.ValidateServico(model.Categoria.IdCategoria);
-            if(servico == null)
+             
+            if(db.ValidateServico(model.Descricao) == true)
             {
-                return NotFound(new { message ="Esse Servico ja existe !!!" });
+                return BadRequest(new { message ="Esse Servico ja existe !!!" });
 
             }
             else
             {
-              return servico =  db.insert(model);
+              return   db.insert(model);
             }
             
         }
@@ -89,6 +89,7 @@ namespace jwt.Controllers
             }
             else
             {
+                model.Id_Servico = id;
                servico= db.edit(model);  
             }
 
@@ -96,7 +97,7 @@ namespace jwt.Controllers
 
         }
 
-        // DELETE: api/ApiWithActions/5
+        // DELETE: api/Servico/5
         [HttpDelete("{id}")]
         [Authorize(Roles = "1")]
         public async Task<ActionResult<Servico>> Delete(int id)
@@ -105,7 +106,7 @@ namespace jwt.Controllers
             if (servico == null)
             {
 
-                return NotFound(new { message = " Dado não encontrad0 !!!entre em contato com administrador ou tente mais tarde " });
+                return NotFound(new { message = " Dado não encontrado ou inexistente !!!entre em contato com administrador ou tente mais tarde " });
 
             }
             else

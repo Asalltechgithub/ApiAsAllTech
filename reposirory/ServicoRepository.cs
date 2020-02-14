@@ -18,7 +18,7 @@ namespace jwt.reposirory
             {
                 using (SqlConnection cn = Conexao.conectar())
                 {
-                    using (SqlCommand cmd = new SqlCommand("Update Servico set Id_Servico =@Id_Servico,Categoria=@Categoria,Descricao=@Descricao ", cn))
+                    using (SqlCommand cmd = new SqlCommand("Update Servico set Categoria=@Categoria,Descricao=@Descricao where Id_Servico=@Id_Servico ", cn))
                     {
                         cmd.Parameters.AddWithValue("@Id_Servico", model.Id_Servico);
                         cmd.Parameters.AddWithValue("@Categoria", model.Categoria.IdCategoria);
@@ -102,6 +102,7 @@ namespace jwt.reposirory
                 {
                     using (SqlCommand cmd = new SqlCommand("Select s.Id_Servico, c.Nome_Categoria, s.Descricao from Servico s inner join Categoria c  on s.Categoria = c.IdCategoria where  s.Id_Servico = @Id_Servico", cn))
                     {
+                        cmd.Parameters.AddWithValue("@Id_Servico", Id);
                         dr = cmd.ExecuteReader();
                         dr.Read();
                         if (dr.HasRows == true)
@@ -150,17 +151,40 @@ namespace jwt.reposirory
             {
                 using (SqlConnection cn = Conexao.conectar())
                 {
-                    using (SqlCommand cmd = new SqlCommand("", cn))
+                    using (SqlCommand cmd = new SqlCommand("Insert into Servico (Categoria,Descricao)values(@Categoria,@Descricao)", cn))
                     {
 
                         cmd.Parameters.AddWithValue("@Categoria", model.Categoria.IdCategoria);
                         cmd.Parameters.AddWithValue("@Descricao", model.Descricao);
                         cmd.ExecuteNonQuery();
-                        servico = ValidateServico(model.Categoria.IdCategoria);
+                        using (SqlCommand cmd2 = new SqlCommand("Select MAX(s.Id_Servico) as Id_Servico from Servico s ", cn))
+                        {
+                            SqlDataReader dr;
+                            dr = cmd2.ExecuteReader();
+                            dr.Read();
+                            if (dr.HasRows == true)
+                            {
+
+                                servico = new Servico()
+                                {
+                                    Id_Servico = (int)dr["Id_Servico"],
+
+
+                                };
+                                model.Id_Servico = servico.Id_Servico;
+
+                            }
+
+
+                            else
+                            {
+                                servico = null;
+                            }
+                        }
+
+
+
                     }
-
-
-
                 }
             }
             catch (Exception ex)
@@ -168,7 +192,7 @@ namespace jwt.reposirory
                 LogRepository log = new LogRepository();
                 log.InsertLog(ex.Message);
             }
-            return servico;
+            return model;
         }
 
         public Servico remove(int Id)
@@ -199,39 +223,23 @@ namespace jwt.reposirory
             return servico;
         }
 
-        public Servico ValidateServico(int IdCategoria)
+        public bool ValidateServico(string descricao)
         {
-            int Id = IdCategoria;
-            Servico servico = null;
-            SqlDataReader dr;
+            
+           
+            SqlDataReader dr = null;
             try
             {
                 using (SqlConnection cn = Conexao.conectar())
                 {
-                    using (SqlCommand cmd = new SqlCommand("Select s.Id_Servico, c.Nome_Categoria, s.Descricao from Servico s inner join Categoria c  on s.Categoria = c.IdCategoria where Categoria=@Categoria", cn))
+                    using (SqlCommand cmd = new SqlCommand("Select s.Id_Servico, c.Nome_Categoria, s.Descricao from Servico s inner join Categoria c  on s.Categoria = c.IdCategoria where Descricao=@Descricao", cn))
                     {
-                        cmd.Parameters.AddWithValue("@Categoria", Id);
+                        cmd.Parameters.AddWithValue("@Descricao", descricao);
                         dr = cmd.ExecuteReader();
                         dr.Read();
-                        if (dr.HasRows == true)
+                       if( dr.HasRows == true)
                         {
-                            servico = new Servico()
-                            {
-                                Id_Servico = (int)dr["Id_Servico"],
-                                Descricao = dr["Descricao"].ToString(),
-                                Categoria = new Categoria()
-                                {
-                                    Nome_Categoria = dr["Nome_Categoria"].ToString()
-                                },
-
-                            };
-
-
-                        }
-
-                        else
-                        {
-                            servico = null;
+                            return true;
                         }
                     }
                 }
@@ -241,7 +249,7 @@ namespace jwt.reposirory
                 LogRepository log = new LogRepository();
                 log.InsertLog(ex.Message);
             }
-            return servico;
+            return false ;
         }
     }
 }

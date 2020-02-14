@@ -13,6 +13,6 @@ namespace jwt.reposirory
         Servico remove(int Id);
         Servico GetServicoById(int Id);
         IEnumerable<Servico> GetAllServico();
-        Servico ValidateServico(int IdCategoria);
+        bool ValidateServico(string Descricao);
     }
 }
