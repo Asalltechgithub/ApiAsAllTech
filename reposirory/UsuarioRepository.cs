@@ -82,7 +82,7 @@ namespace jwt.reposirory
 
                         // metodo  que compara senha ecriptada 
                         ckSenha = encryption.checkEncryptPassword(usuario.Password, password);
-                        usuario.Password = string.Empty;
+                        
                         if (ckSenha == false)
                         {
                             return null;
@@ -349,42 +349,30 @@ namespace jwt.reposirory
 
         }
 
-        public User FirstAcces()
+        public bool FirstAcces()
         {
             var ADM = new User();
-           
+
             try
             {
-                using(SqlConnection cn = Conexao.conectar())
+                using (SqlConnection cn = Conexao.conectar())
                 {
-                    using(SqlCommand cmd = new SqlCommand("Select Count('NumUsuario') as 'NumUsuario' from Usuario",cn))
+                    using (SqlCommand cmd = new SqlCommand("Select Count('NumUsuario') as 'NumUsuario' from Usuario", cn))
                     {
                         SqlDataReader dr = cmd.ExecuteReader();
                         dr.Read();
                         int CountUser = (int)dr["NumUsuario"];
                         dr.Close();
-                        if(CountUser == 0)
+                        if (CountUser == 0)
                         {
-                            var cmd2 = new SqlCommand {
-                                CommandText = "Insert into Usuario  (Username, Password, Grupo)values('ADM','Admin',1)",
-                                 Connection =cn,
-                                 
-                        };
-                            if(cmd2.ExecuteNonQuery() == 1)
-                            {
 
-                                ADM = new User
-                                {
-                                    Grupo = new GrupoUsuario { IdGrupoUsuario = 1, },
-                                    Username = "ADM",
-                                    Password = "Admin"
+                            return false;
 
-                                };
-
-                            }
-
-                           
                         }
+                       
+                          
+                        
+
                     }
                 }
             }
@@ -394,7 +382,30 @@ namespace jwt.reposirory
                 LogRepository log = new LogRepository();
                 log.InsertLog(ex.Message);
             }
-            return ADM;
+             return true;
+        }
+        public User EditPassword(User model)
+        {
+            try
+            {
+                using (SqlConnection cn = Conexao.conectar())
+                {
+                    using (SqlCommand cmd = new SqlCommand("Update Usuario set Password = @Password where Id = @Id", cn))
+                    {
+                        cmd.Parameters.AddWithValue("@Id", model.Id);
+                        cmd.Parameters.AddWithValue("@Password", model.Password);
+                        cmd.ExecuteNonQuery();
+                        cn.Close();
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogRepository log = new LogRepository();
+                log.InsertLog(ex.Message);
+            }
+            return model;
         }
     }
 }

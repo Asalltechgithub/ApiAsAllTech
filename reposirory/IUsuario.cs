@@ -15,8 +15,8 @@ namespace jwt.reposirory
         User Remove(User model);
         IEnumerable<User> GetUsersByRole(int Role);
         IEnumerable<User> GetAllUsers();
-
-        User FirstAcces();
+        User EditPassword(User model);
+        bool FirstAcces();
        User ValidUserName(string UserName);
     }
 }

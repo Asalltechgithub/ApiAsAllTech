@@ -3,6 +3,7 @@ using jwt.reposirory;
 using jwt.services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace jwt.Controllers
@@ -18,48 +19,56 @@ namespace jwt.Controllers
         [HttpPost]
         [Route("Login")]
         [AllowAnonymous]
-        public async Task<ActionResult<dynamic>> Authenticate([FromBody]User model)
+        public async Task<ActionResult<Tuple<Token,User> >> Authenticate([FromBody]User model)
         {
             var user = model;
-            user = db.FirstAcces();
-            if (user.Username == "ADM" && model.Password == "ADMIN")
+            if (db.FirstAcces() == false)
             {
-                return new
+                model = new User()
                 {
-                    message = "Primeiro Acesso  Seu usuario já existe ||| Por favor troque sua senha por seguranca",
-                    user
-                }; 
-            }
-            else
-            {
+                    Username = " ADM ",
+                    Password = " ADMIN ",
+                    Grupo = new GrupoUsuario
+                    {
+                        IdGrupoUsuario = 1
+                    }
 
-
-                if (model.Username == "ADM" && model.Password == "ADMIN")
-                {
-                    /// metodo para trocar Senha
-                }
-                user.Username = model.Username.ToUpper().Trim();
-                user.Password = model.Password.Trim();
-
-                //Recupera o usuário
-                user = db.GetUser(user.Username, user.Password);
-                //Verifica se o usuário existe
-                if (user == null)
-                    return NotFound(new { message = "Usuário ou senha inválidos" });
-
-                //  Gera o Token
-                var token = TokenService.GeneraterToken(user);
-
-                // Oculta a senha
-                user.Password = "";
-
-                // Retorna os dados
-                return new
-                {
-                    user = user,
-                    token = token
                 };
+                var ADM = db.Insert(model);
+
+                return Ok(new
+                {
+                    message = "Foi gerado o usuario Master no seu primeiro acesso Recomendo que altere a senha ",
+                    ADM
+                });
+               
             }
+
+
+
+            user.Username = model.Username.ToUpper().Trim();
+            user.Password = model.Password.Trim();
+
+            //Recupera o usuário
+            user = db.GetUser(user.Username, user.Password);
+            //Verifica se o usuário existe
+            if (user == null)
+                return NotFound(new { message = "Usuário ou senha inválidos" });
+
+            Token token = new Token();
+           
+            //  Gera o Token
+           token.AcessToken = TokenService.GeneraterToken(user);
+           
+
+            // Oculta a senha
+            user.Password = "";
+
+            // Retorna os dados
+            return new Tuple<Token,User>(token,user);
+            
+           
+
         }
         [HttpPost]
         [Route("cadastrar")]
@@ -86,30 +95,33 @@ namespace jwt.Controllers
 
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("AlterarSenha")]
         [AllowAnonymous]
-        public async Task<ActionResult<User>> AlterSenha([FromBody]User model)
+        public async Task<ActionResult<User>> AlterSenha(string newPass,[FromBody]User model )
         {
 
-            if (db.ValidUserName(model.Username.ToUpper().Trim()) != null)
-            {
 
-                return NotFound(new { message = "Ja existe um usuario com esse nome" });
+
+            var user = db.GetUser(model.Username, model.Password);
+            if (user == null)
+            {
+                return NotFound(new { message = "Usuario não existe ou senha Incorreta !!!" });
             }
             else
             {
-
+                model.Id = user.Id;
                 Encryption encryption = new Encryption();
                 model.Password = encryption.createEncryptPassword(model.Password);
-                model.Username = model.Username.ToUpper();
-                model = db.Insert(model);
+                model = db.EditPassword(model);
                 model.Password = string.Empty;
-
-                return model;
             }
 
+            return model;
+
+
         }
+
         [HttpGet]
         [Route("anonymous")]
         [AllowAnonymous]

@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 
 namespace jwt.Models
 {
-    public class TokenResponse
+    public class Token
     {
-        public string Token;
+        public string AcessToken { get; set; }
+        
 
     }
 }

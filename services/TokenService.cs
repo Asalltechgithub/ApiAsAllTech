@@ -29,7 +29,9 @@ namespace jwt.services
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Key),
                 SecurityAlgorithms.HmacSha256Signature)
             };
+            
             var Token =   TokenHandler.CreateToken(tokenDescriptor);
+            
             return TokenHandler.WriteToken(Token);
 
         }
